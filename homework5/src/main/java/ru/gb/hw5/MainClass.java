@@ -11,11 +11,12 @@ public class MainClass {
         }
     }
 
-    private static long calcArray(double[] arr){
+    private static long calcArray(double[] arr, int prefix){
         long startTime = System.currentTimeMillis();
         int s = arr.length;
         for(int i = 0; i < s; i++){
-            arr[i] = arr[i] * Math.sin(0.2f + (double)i / 5) * Math.cos(0.2f + (double)i / 5) * Math.cos(0.4f + (double)i / 2);
+            double workIndex = i + prefix;
+            arr[i] = arr[i] * Math.sin(0.2f + workIndex / 5) * Math.cos(0.2f + workIndex / 5) * Math.cos(0.4f + workIndex / 2);
         }
         return System.currentTimeMillis() - startTime;
     }
@@ -32,7 +33,7 @@ public class MainClass {
 
     private static long multiThreadCalc(double[] arr, int threadNumber){
         if (threadNumber < 2) {
-            return  calcArray(arr);
+            return  calcArray(arr, 0);
         }
 
         long startTime = System.currentTimeMillis();
@@ -61,10 +62,11 @@ public class MainClass {
 
         joinThreads(splitters);
 
-        for(int i = 0; i < threadNumber; i++){
+        for(int i = 0, stPos = 0; i < threadNumber; stPos += arrays[i++].length){
             int n = i;  // to be possible to use in lambda
+            int prefix = stPos;
             workers[i] = new Thread(() ->
-                    calcArray(arrays[n])
+                    calcArray(arrays[n], prefix)
             );
             workers[i].start();
         }
